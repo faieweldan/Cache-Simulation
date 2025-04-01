@@ -1,0 +1,66 @@
+# 🧠 P2 Cache Simulator
+
+This project is a Python-based simulation of a **cache memory system**, supporting single-level (L1) and multi-level (L1 + L2) inclusive caching. It is designed for educational purposes as part of Penn State’s CMPSC 311 coursework.
+
+---
+
+## 📂 Project Structure
+
+├── cache.py # Your main implementation file – to be submitted 
+├── driver.py # Entry point to run the simulation using configs and trace files 
+├── utils.py # Base classes – DO NOT MODIFY 
+├── configs/ # Cache configuration files (e.g. simple1.cfg, simple2.cfg) 
+├── inputs/ # Memory access trace files (e.g. ex1.txt, ex2.txt) 
+├── outputs/ # Sample expected outputs for validation 
+└── README.md # Project overview and instructions
+
+---
+
+## ⚙️ Features
+
+- Supports **FIFO**, **LRU**, and **MRU** eviction policies
+- Models **write-back** cache behavior
+- Simulates **inclusive** cache hierarchy between L1 and L2
+- Tracks:
+  - Read & write hits and misses
+  - Evictions
+  - Writebacks
+
+---
+
+## 🧪 How to Run the Simulation
+
+### In Terminal (VS Code):
+
+```bash
+python3 driver.py configs/simple2.cfg -t inputs/ex2.txt
+
+L1: read miss at address 0x00000000
+L2: read miss at address 0x00000000
+Memory: read hit at address 0x00000000
+L2: read hit at address 0x00000000
+L1: read hit at address 0x00000000
+...
+
+
+
+##Configuration Example (configs/simple2.cfg)
+2
+64 8 2 LRU WB L1
+128 8 4 FIFO WB L2
+
+Means:
+
+2 cache levels
+
+L1: 64B total, 8B blocks, 2-way, LRU
+
+L2: 128B total, 8B blocks, 4-way, FIFO
+
+Both use write-back policy
+
+
+Author
+Rifaie Wildani Nazori
+Penn State University
+Spring 2025

@@ -1,118 +1,128 @@
 from collections import deque, OrderedDict
 from utils import Level
 
-
 class CacheLevel(Level):
     def __init__(self, size, block_size, associativity, eviction_policy, write_policy, level_name, higher_level=None, lower_level=None):
         super().__init__(level_name, higher_level, lower_level)
-        self.size = size
-        self.block_size = block_size
-        self.associativity = associativity
-        self.eviction_policy = eviction_policy  # FIFO | LRU | MRU
-        self.write_policy = write_policy  # always WB for this assignment
+        # Setting up cache variables.
+        self.cache_size = size  # Total size of cache.
+        self.block_size = block_size  # Size of each block in cache.
+        self.associativity = associativity  # Number of blocks in each cache set.
+        self.eviction_policy = eviction_policy.upper()  # Eviction policy, can be FIFO, LRU, or MRU.
+        self.write_policy = write_policy.upper()  # Write policy, usually write-back (WB).
 
-        # Number of cache sets = cache size / (block size * associativity)
-        self.num_sets = self.size // (self.block_size * self.associativity)
-        
-        # Each set stores tag → dirty_bit (True/False)
-        self.sets = [{} for _ in range(self.num_sets)]
-        
-        # Track eviction order
-        if self.eviction_policy == "FIFO":
-            self.eviction_tracker = [deque() for _ in range(self.num_sets)]
-        else:  # LRU or MRU use OrderedDict
-            self.eviction_tracker = [OrderedDict() for _ in range(self.num_sets)]
+        # Calculate how many sets we have in the cache based on size and associativity.
+        self.num_sets = self.cache_size // (self.block_size * self.associativity)
+        self.offset_bits = self.block_size.bit_length() - 1  # Number of bits for the block offset.
+        self.index_bits = self.num_sets.bit_length() - 1  # Number of bits for the index.
+
+        # We have a list of ordered dictionaries, one for each cache set.
+        self.cache = [OrderedDict() for _ in range(self.num_sets)]
+        # This holds the dirty bits for each block. Metadata!
+        self.cache_metadata = [{} for _ in range(self.num_sets)]
 
     def _calculate_index(self, address):
-        block_number = address // self.block_size
-        return block_number % self.num_sets
+        # This is to calculate which cache set the block will go to.
+        return (address >> self.offset_bits) & (self.num_sets - 1)
 
     def _calculate_tag(self, address):
-        block_number = address // self.block_size
-        return block_number // self.num_sets
+        # This calculates the tag for a given block, used to identify the block in cache.
+        return address >> (self.index_bits + self.offset_bits)
 
     def _calculate_block_address(self, address):
-        return address // self.block_size
+        # Align the address to the start of the block.
+        return address & ~(self.block_size - 1)
 
     def _calculate_block_address_from_tag_index(self, tag, cache_index):
-        return (tag * self.num_sets + cache_index) * self.block_size
+        # Given a tag and cache set index, calculate the actual block address.
+        return (tag << (self.index_bits + self.offset_bits)) | (cache_index << self.offset_bits)
 
     def is_dirty(self, block_address):
-        cache_index = self._calculate_index(block_address * self.block_size)
-        tag = self._calculate_tag(block_address * self.block_size)
-        return self.sets[cache_index].get(tag, False)  # Default to False if tag not found
+        # This checks if the block is dirty (modified) in the cache.
+        cache_index = self._calculate_index(block_address)
+        tag = self._calculate_tag(block_address)
+        return self.cache_metadata[cache_index].get(tag, {}).get("dirty", False)
 
     def access(self, operation, address):
-        cache_index = self._calculate_index(address)
-        tag = self._calculate_tag(address)
-        block_address = self._calculate_block_address(address)
+        """
+        operation: 'R' for Read, 'W' for Write
+        What happens here is that we check if the block is in the cache. 
+        If not, we fetch it and maybe evict something!
+        """
+        block_addr = self._calculate_block_address(address)  # Align address to the block
+        cache_index = self._calculate_index(block_addr)  # Find out which cache set it goes to
+        tag = self._calculate_tag(block_addr)  # Get the tag for the block
 
-        # Handle "B" operation (block writeback)
-        if operation == "B":
-            self.sets[cache_index][tag] = True  # Always dirty
-            if self.eviction_policy in ["LRU", "MRU"]:
-                self.eviction_tracker[cache_index][tag] = None
-            elif self.eviction_policy == "FIFO":
-                self.eviction_tracker[cache_index].append(tag)
-            return
-
-        # Check if the block is in the cache (hit or miss)
-        if tag in self.sets[cache_index]:
-            # Cache hit
-            self.report_hit(operation, address)
-            if operation == "W":  # Write operation
-                self.sets[cache_index][tag] = True  # Set dirty bit
-            # Update eviction policy
-            if self.eviction_policy in ["LRU", "MRU"]:
-                self.eviction_tracker[cache_index].move_to_end(tag, last=(self.eviction_policy == "LRU"))
+        # Check if the block is already in the cache.
+        if tag in self.cache[cache_index]:
+            self.report_hit(operation, address)  # It's a hit! We found it in the cache.
+            if operation == 'W':
+                self.cache_metadata[cache_index][tag]["dirty"] = True  # Mark it dirty if it's a write.
+            self._update_recency(cache_index, tag)  # Update recency based on eviction policy.
         else:
-            # Cache miss
-            self.report_miss(operation, address)
-            if len(self.sets[cache_index]) >= self.associativity:
-                # Evict a block if necessary
+            self.report_miss(operation, address)  # Cache miss! We didn't find it.
+            # If the cache set is full, we need to evict a block.
+            if len(self.cache[cache_index]) >= self.associativity:
                 self.evict(cache_index)
-            # Allocate space for the new block
-            self.sets[cache_index][tag] = (operation == "W")  # Set dirty bit if write
-            if self.eviction_policy in ["LRU", "MRU"]:
-                self.eviction_tracker[cache_index][tag] = None
-            elif self.eviction_policy == "FIFO":
-                self.eviction_tracker[cache_index].append(tag)
-            # Fetch block from higher level if available
+            # If it's a write miss, we need to fetch the block as a read first.
+            prop_operation = operation if self.lower_level else 'R'
             if self.higher_level:
-                self.higher_level.access("R", address)
+                self.higher_level.access(prop_operation, block_addr)
+            # Insert the block into the cache and mark it dirty if it's a write.
+            self.cache[cache_index][tag] = None
+            self.cache_metadata[cache_index][tag] = {"dirty": (operation == 'W')}
 
     def evict(self, cache_index):
-        if self.eviction_policy == "FIFO":
-            victim_tag = self.eviction_tracker[cache_index].popleft()
-        elif self.eviction_policy == "LRU":
-            victim_tag = next(iter(self.eviction_tracker[cache_index]))
-        elif self.eviction_policy == "MRU":
-            victim_tag = next(reversed(self.eviction_tracker[cache_index]))
+        """
+        Eviction policy time! We need to evict a block according to the FIFO, LRU, or MRU policy.
+        If the block is dirty, we write it back to memory.
+        """
+        if not self.cache[cache_index]:
+            return  # Nothing to evict, it's empty.
 
-        # Remove the block from the set
-        block_address = self._calculate_block_address_from_tag_index(victim_tag, cache_index)
-        if self.sets[cache_index][victim_tag]:  # If dirty, perform writeback
-            self.report_writeback(block_address)
-            if self.lower_level:
-                self.lower_level.access("B", block_address * self.block_size)
-        del self.sets[cache_index][victim_tag]
-        self.report_eviction(block_address)
+        # Decide which block to evict based on the eviction policy.
+        victim_block_tag = None
+        if self.eviction_policy == "FIFO":
+            victim_block_tag = next(iter(self.cache[cache_index]))  # First block in cache (FIFO).
+        elif self.eviction_policy == "LRU":
+            victim_block_tag = next(iter(self.cache[cache_index]))  # Least recently used block.
+        elif self.eviction_policy == "MRU":
+            victim_block_tag = next(reversed(self.cache[cache_index]))  # Most recently used block.
+
+        # Calculate the block address of the victim that we need to evict.
+        evicted_block_address = self._calculate_block_address_from_tag_index(victim_block_tag, cache_index)
+        self.invalidate(evicted_block_address)
 
     def invalidate(self, block_address):
-        cache_index = self._calculate_index(block_address * self.block_size)
-        tag = self._calculate_tag(block_address * self.block_size)
+        """
+        This removes a block from the cache. If it's dirty, it writes the block back to memory.
+        """
+        cache_index = self._calculate_index(block_address)  # Find the cache set
+        tag = self._calculate_tag(block_address)  # Get the tag of the block
 
-        if tag in self.sets[cache_index]:
-            # Check if the block is dirty
-            if self.sets[cache_index][tag]:
-                # Perform writeback if dirty
-                self.report_writeback(block_address)
-                if self.lower_level:
-                    self.lower_level.access("B", block_address * self.block_size)
-            # Remove the block
-            del self.sets[cache_index][tag]
-            if self.eviction_policy in ["LRU", "MRU"]:
-                del self.eviction_tracker[cache_index][tag]
-            elif self.eviction_policy == "FIFO":
-                self.eviction_tracker[cache_index].remove(tag)
-            self.report_eviction(block_address)
+        if tag not in self.cache[cache_index]:
+            return  # If the block isn't in the cache, nothing to invalidate.
+
+        # If the block is dirty, we need to write it back to memory (lower level).
+        if self.cache_metadata[cache_index][tag]["dirty"]:
+            self.report_writeback(block_address)
+            if self.higher_level:
+                self.higher_level.access('W', block_address)
+
+        # Actually remove the block from cache and metadata.
+        del self.cache[cache_index][tag]
+        del self.cache_metadata[cache_index][tag]
+        self.report_eviction(block_address)  # Report that we evicted the block.
+
+    def _update_recency(self, cache_index, tag):
+        """
+        This function updates the recency of a block depending on the eviction policy:
+        - For LRU: Move the block to the end (most recently used).
+        - For MRU: Move the block to the front (most recently used).
+        - FIFO: Do nothing, we don't care about the order.
+        """
+        if self.eviction_policy == "LRU":
+            self.cache[cache_index].move_to_end(tag)  # Move to end to mark as recently used.
+        elif self.eviction_policy == "MRU":
+            self.cache[cache_index].move_to_end(tag, last=False)  # Move to front to mark as most recently used.
+        # FIFO doesn't need to do anything, just keep the order.
