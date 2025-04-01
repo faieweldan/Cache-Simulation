@@ -1,0 +1,194 @@
+Memory Hierarchy:
+	L1 <-> L2 <-> L3 <-> Memory
+L1: write miss at address 0x00000000
+L2: read miss at address 0x00000000
+L3: read miss at address 0x00000000
+Memory: read hit at address 0x00000000
+L1: write miss at address 0x10000000
+L2: read miss at address 0x10000000
+L3: read miss at address 0x10000000
+Memory: read hit at address 0x10000000
+L1: write miss at address 0x20000000
+L1: performing writeback of cache line 0x00000000
+L2: write hit at address 0x00000000
+L1: evicted cache line at 0x00000000
+L2: read miss at address 0x20000000
+L3: read miss at address 0x20000000
+Memory: read hit at address 0x20000000
+L1: write miss at address 0x30000000
+L1: performing writeback of cache line 0x10000000
+L2: write hit at address 0x10000000
+L1: evicted cache line at 0x10000000
+L2: read miss at address 0x30000000
+L3: read miss at address 0x30000000
+Memory: read hit at address 0x30000000
+L1: write miss at address 0x40000000
+L1: performing writeback of cache line 0x20000000
+L2: write hit at address 0x20000000
+L1: evicted cache line at 0x20000000
+L2: read miss at address 0x40000000
+L1: performing writeback of cache line 0x30000000
+L2: write hit at address 0x30000000
+L1: evicted cache line at 0x30000000
+L2: performing writeback of cache line 0x30000000
+L3: write hit at address 0x30000000
+L2: evicted cache line at 0x30000000
+L3: read miss at address 0x40000000
+Memory: read hit at address 0x40000000
+L1: write miss at address 0x50000000
+L2: read miss at address 0x50000000
+L1: performing writeback of cache line 0x40000000
+L2: write hit at address 0x40000000
+L1: evicted cache line at 0x40000000
+L2: performing writeback of cache line 0x40000000
+L3: write hit at address 0x40000000
+L2: evicted cache line at 0x40000000
+L3: read miss at address 0x50000000
+Memory: read hit at address 0x50000000
+L1: write miss at address 0x60000000
+L2: read miss at address 0x60000000
+L1: performing writeback of cache line 0x50000000
+L2: write hit at address 0x50000000
+L1: evicted cache line at 0x50000000
+L2: performing writeback of cache line 0x50000000
+L3: write hit at address 0x50000000
+L2: evicted cache line at 0x50000000
+L3: read miss at address 0x60000000
+L2: performing writeback of cache line 0x00000000
+L3: write hit at address 0x00000000
+L2: evicted cache line at 0x00000000
+L3: performing writeback of cache line 0x00000000
+Memory: write hit at address 0x00000000
+L3: evicted cache line at 0x00000000
+Memory: read hit at address 0x60000000
+L1: write miss at address 0x70000000
+L2: read miss at address 0x70000000
+L3: read miss at address 0x70000000
+L2: performing writeback of cache line 0x10000000
+L3: write hit at address 0x10000000
+L2: evicted cache line at 0x10000000
+L3: performing writeback of cache line 0x10000000
+Memory: write hit at address 0x10000000
+L3: evicted cache line at 0x10000000
+Memory: read hit at address 0x70000000
+L1: write miss at address 0x80000000
+L1: performing writeback of cache line 0x60000000
+L2: write hit at address 0x60000000
+L1: evicted cache line at 0x60000000
+L2: read miss at address 0x80000000
+L3: read miss at address 0x80000000
+L2: performing writeback of cache line 0x20000000
+L3: write hit at address 0x20000000
+L2: evicted cache line at 0x20000000
+L3: performing writeback of cache line 0x20000000
+Memory: write hit at address 0x20000000
+L3: evicted cache line at 0x20000000
+Memory: read hit at address 0x80000000
+L1: write miss at address 0x90000000
+L1: performing writeback of cache line 0x70000000
+L2: write hit at address 0x70000000
+L1: evicted cache line at 0x70000000
+L2: read miss at address 0x90000000
+L3: read miss at address 0x90000000
+L3: performing writeback of cache line 0x30000000
+Memory: write hit at address 0x30000000
+L3: evicted cache line at 0x30000000
+Memory: read hit at address 0x90000000
+L1: write miss at address 0xa0000000
+L1: performing writeback of cache line 0x80000000
+L2: write hit at address 0x80000000
+L1: evicted cache line at 0x80000000
+L2: read miss at address 0xa0000000
+L1: performing writeback of cache line 0x90000000
+L2: write hit at address 0x90000000
+L1: evicted cache line at 0x90000000
+L2: performing writeback of cache line 0x90000000
+L3: write hit at address 0x90000000
+L2: evicted cache line at 0x90000000
+L3: read miss at address 0xa0000000
+L3: performing writeback of cache line 0x40000000
+Memory: write hit at address 0x40000000
+L3: evicted cache line at 0x40000000
+Memory: read hit at address 0xa0000000
+L1: write miss at address 0xb0000000
+L2: read miss at address 0xb0000000
+L1: performing writeback of cache line 0xa0000000
+L2: write hit at address 0xa0000000
+L1: evicted cache line at 0xa0000000
+L2: performing writeback of cache line 0xa0000000
+L3: write hit at address 0xa0000000
+L2: evicted cache line at 0xa0000000
+L3: read miss at address 0xb0000000
+L3: performing writeback of cache line 0x50000000
+Memory: write hit at address 0x50000000
+L3: evicted cache line at 0x50000000
+Memory: read hit at address 0xb0000000
+L1: write miss at address 0xc0000000
+L2: read miss at address 0xc0000000
+L1: performing writeback of cache line 0xb0000000
+L2: write hit at address 0xb0000000
+L1: evicted cache line at 0xb0000000
+L2: performing writeback of cache line 0xb0000000
+L3: write hit at address 0xb0000000
+L2: evicted cache line at 0xb0000000
+L3: read miss at address 0xc0000000
+L2: performing writeback of cache line 0x60000000
+L3: write hit at address 0x60000000
+L2: evicted cache line at 0x60000000
+L3: performing writeback of cache line 0x60000000
+Memory: write hit at address 0x60000000
+L3: evicted cache line at 0x60000000
+Memory: read hit at address 0xc0000000
+L1: write miss at address 0xd0000000
+L2: read miss at address 0xd0000000
+L3: read miss at address 0xd0000000
+L2: performing writeback of cache line 0x70000000
+L3: write hit at address 0x70000000
+L2: evicted cache line at 0x70000000
+L3: performing writeback of cache line 0x70000000
+Memory: write hit at address 0x70000000
+L3: evicted cache line at 0x70000000
+Memory: read hit at address 0xd0000000
+L1: write miss at address 0xe0000000
+L1: performing writeback of cache line 0xc0000000
+L2: write hit at address 0xc0000000
+L1: evicted cache line at 0xc0000000
+L2: read miss at address 0xe0000000
+L3: read miss at address 0xe0000000
+L2: performing writeback of cache line 0x80000000
+L3: write hit at address 0x80000000
+L2: evicted cache line at 0x80000000
+L3: performing writeback of cache line 0x80000000
+Memory: write hit at address 0x80000000
+L3: evicted cache line at 0x80000000
+Memory: read hit at address 0xe0000000
+L1: write miss at address 0xf0000000
+L1: performing writeback of cache line 0xd0000000
+L2: write hit at address 0xd0000000
+L1: evicted cache line at 0xd0000000
+L2: read miss at address 0xf0000000
+L3: read miss at address 0xf0000000
+L3: performing writeback of cache line 0x90000000
+Memory: write hit at address 0x90000000
+L3: evicted cache line at 0x90000000
+Memory: read hit at address 0xf0000000
+L1 Statistics
+	0 hits (0 read, 0 write)
+	16 misses (0 read, 16 write)
+	14 evictions
+	14 writebacks
+L2 Statistics
+	14 hits (0 read, 14 write)
+	16 misses (16 read, 0 write)
+	12 evictions
+	12 writebacks
+L3 Statistics
+	12 hits (0 read, 12 write)
+	16 misses (16 read, 0 write)
+	10 evictions
+	10 writebacks
+Memory Statistics
+	26 hits (16 read, 10 write)
+	0 misses (0 read, 0 write)
+	0 evictions
+	0 writebacks

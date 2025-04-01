@@ -1,0 +1,32 @@
+Memory Hierarchy:
+	L1 <-> L2 <-> Memory
+L1: read miss at address 0x00000100
+L2: read miss at address 0x00000100
+Memory: read hit at address 0x00000100
+L1: read hit at address 0x00000108
+L1: read miss at address 0x10000100
+L2: read miss at address 0x10000100
+Memory: read hit at address 0x10000100
+L1: read hit at address 0x10000108
+L1: read miss at address 0x20000100
+L1: evicted cache line at 0x10000100
+L2: read miss at address 0x20000100
+L1: evicted cache line at 0x00000100
+L2: evicted cache line at 0x00000100
+Memory: read hit at address 0x20000100
+L1: read hit at address 0x20000108
+L1 Statistics
+	3 hits (3 read, 0 write)
+	3 misses (3 read, 0 write)
+	2 evictions
+	0 writebacks
+L2 Statistics
+	0 hits (0 read, 0 write)
+	3 misses (3 read, 0 write)
+	1 evictions
+	0 writebacks
+Memory Statistics
+	3 hits (3 read, 0 write)
+	0 misses (0 read, 0 write)
+	0 evictions
+	0 writebacks

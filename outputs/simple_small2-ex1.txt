@@ -1,0 +1,22 @@
+Memory Hierarchy:
+	L1 <-> Memory
+L1: read miss at address 0x00000000
+Memory: read hit at address 0x00000000
+L1: read hit at address 0x00000008
+L1: read hit at address 0x00000010
+L1: read hit at address 0x00000018
+L1: read miss at address 0x00000020
+Memory: read hit at address 0x00000020
+L1: read hit at address 0x00000028
+L1: read hit at address 0x00000030
+L1: read hit at address 0x00000038
+L1 Statistics
+	6 hits (6 read, 0 write)
+	2 misses (2 read, 0 write)
+	0 evictions
+	0 writebacks
+Memory Statistics
+	2 hits (2 read, 0 write)
+	0 misses (0 read, 0 write)
+	0 evictions
+	0 writebacks
